@@ -1,0 +1,38 @@
+spring:
+  application:
+    name: cloud-order
+  cloud:
+    nacos:
+      ###nacos注册地址
+      discovery:
+        server-addr: 47.103.32.78:80
+      ###配置中心连接地址
+      config:
+        server-addr: 47.103.32.78:80
+        ###自定义分组
+        group: cloud-order
+        ###指定文件类型
+        file-extension: yaml
+        ### prefix 默认为 spring.application.name 的值
+        prefix: cloud-order
+    ### sentinel 配置
+    sentinel:
+      transport:
+        ## 控制台连接地址
+        dashboard: 1223xru.nat.ipyingshe.com
+        #dashboard: 169.254.122.56:8071
+      ## 限流必须打开
+      eager: true
+      ##sentinel 限流规则使用nacos持久化配置
+      datasource:
+        ds1: #自定义标识 datasource1的意思
+          nacos:
+            #nacos地址
+            server-addr: 47.103.32.78:80
+            data-id: ${spring.application.name}.json
+            group-id: DEFAULT_GROUP
+            data-type: json
+            rule-type: flow
+  profiles:
+    active: dev
+

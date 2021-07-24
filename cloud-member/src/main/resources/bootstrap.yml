@@ -1,0 +1,38 @@
+spring:
+  application:
+    name: cloud-member
+  datasource:
+    url: jdbc:mysql://zhaoxinping.mysql.rds.aliyuncs.com:3306/cloud_order?useUnicode=true&characterEncoding=utf8
+    username: root
+    password: zxp@1992
+  cloud:
+    nacos:
+      ###nacos注册地址
+      discovery:
+        server-addr: 47.103.32.78:80
+      ###配置中心连接地址
+      config:
+        server-addr: 47.103.32.78:80
+        ###分组
+        group: cloud-member
+        ###指定文件类型
+        file-extension: yaml
+        ### prefix 默认为 spring.application.name 的值
+        prefix: cloud-member
+    sentinel:
+      transport:
+        ## 连接地址
+        dashboard: 1223xru.nat.ipyingshe.com
+        #dashboard: 169.254.122.56:8071
+      ## 限流必须打开
+      eager: true
+  profiles:
+    active: dev
+
+
+mybatis-plus:
+  configuration:
+    cache-enabled: false
+    map-underscore-to-camel-case: true
+  mapper-locations: classpath:mapper/*/*Mapper.xml
+  typeAliasesPackage: com.cloud.cloudmember.model.*.entity

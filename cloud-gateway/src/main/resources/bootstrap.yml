@@ -1,0 +1,76 @@
+server:
+  port: 8083
+spring:
+  application:
+    name: cloud-gateway
+  cloud:
+    ##gateway集成nacos
+    nacos:
+      discovery:
+        server-addr: 47.103.32.78:80
+      config:
+        server-addr: 47.103.32.78:80
+        group: cloud-gateway
+        file-extension: yaml
+        prefix: cloud-gateway
+    ## 集成sentinel
+    sentinel:
+      transport:
+         dashboard: 1223xru.nat.ipyingshe.com
+         #dashboard: 169.254.122.56:8071
+      eager: true
+      datasource:
+        ###限流规则
+        flow:
+          nacos:
+            server-addr: 47.103.32.78:80
+            data-id: ${spring.application.name}.json
+            group-id: DEFAULT_GROUP
+            rule-type: flow
+            data-type: json
+        ##降级规则
+        degrade:
+          nacos:
+            server-addr: 47.103.32.78:80
+            data-id: ${spring.application.name}-degrade.json
+            group-id: DEFAULT_GROUP
+            rule-type: degrade
+            data-type: json
+    ## 网关配置
+    gateway:
+      discovery:
+        locator:
+          ####开启以服务id去注册中心上获取转发地址
+          enabled: true
+          # 设置路由的路径为小写的服务ID
+          lower-case-service-id: true
+      ###路由策略
+      routes:
+        # 订单服务自定义策略ID
+        - id: cloud-order
+          # 下面验证通过会跳转的地址，如果加上 lb + 服务名 uri以lb://开头（lb代表从注册中心获取服务），后面接的就是你需要转发到的服务名称
+          #uri: http://www.baidu.com
+          uri: lb://cloud-order
+          predicates:
+            - Path=/api/order/**
+            ### 自定义谓词，每次请求 /api/order/** 这个接口的时候，请求参数必须要有token这个参数。且值等于123456
+            #- Token= 123456
+
+            ### 自定义谓词，下午6:00, 上午6:00 才能通过请求
+            #- AccessTime=下午6:00, 上午6:00
+          filters:
+            # 路径向前过滤两位即需要过滤 /api/order/ 这两位请求路径
+            - StripPrefix=2
+            - RequestLog=prefix, gateway #我们自定义的filter
+
+        # 会员服务自定义策略ID
+        - id: cloud-member
+            # 下面验证通过会跳转的地址，如果加上 lb + 服务名 uri以lb://开头（lb代表从注册中心获取服务），后面接的就是你需要转发到的服务名称
+            #uri: http://www.baidu.com
+          uri: lb://cloud-member
+          predicates:
+            - Path=/api/member/**
+          filters:
+              # 路径向前过滤两位即需要过滤 /api/member/ 这两位请求路径
+            - StripPrefix=2
+
